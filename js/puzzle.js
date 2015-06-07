@@ -15,7 +15,7 @@ var sortedImages=[];
 var swapStack = [];
 
 for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
-  image = 'url(../tiles/tile_'+i+'.jpg)'
+  image = 'url(tiles/tile_'+i+'.jpg)'
   sortedImages.push(image);
   shuffledImages.push(image);
 }
