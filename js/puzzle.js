@@ -1,7 +1,18 @@
 
-$(document).ready(handleResize);
+$(document).ready(init);
+
+function init() {
+  handleResize();
+  $('#shuffle').click(function(event) {
+      shuffleImages(); 
+    }
+  )
+}
+
 $(document.body).append('<div id="board"></div>');
 $('#board').append('<div id="win"></div>');
+$('#board').append('<div id="mouseover"></div>');
+$('#mouseover').append('<a href="#" id="shuffle">Shuffle</a><a href="#" id="undo">Undo</a>');
 $('#win').append('<div id="win_text">YOU WIN!</div>');
 
 window.addEventListener("resize", handleResize);
@@ -39,6 +50,7 @@ function shuffleImages() {
       boxCounter++;
     }
   }
+  handleResize();
 }
 
 function handleClick() {
@@ -77,5 +89,4 @@ function handleResize() {
   $('.box').css('width', $('#board').width() / horizontalBoxNum);
   $('.box').css('height', $('#board').height() / verticalBoxNum);
 }
-
 
