@@ -1,55 +1,84 @@
-$(document).ready(handleResize);
+$(document).ready(function(){
+  handleResize();
+  $('.navbar').hide(500);
+   $("button").mouseover(function(){
+        $('.navbar').toggle();
+    });
+  $('.shuffle').click(function(event){
+      // handleResize();
+       shuffleImages();
+    });
+});
+$(document.body).append('<div id="board"></div>');
 
-  function handleResize() {
-    //console.log($('#board').width());
-    $('.box').css('width', $('#board').width() / horizontalBoxNum);
-    $('.box').css('height', $('#board').height() / verticalBoxNum);
-  }
+window.addEventListener("resize", handleResize);
 
-  verticalBoxNum = 4;
-  horizontalBoxNum = 6;
+verticalBoxNum = 4;
+horizontalBoxNum = 6;
 
-  var randomImages=[];
-  for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
-    randomImages.push('url(../tiles/tile_'+i+'.jpg)');
-  }
-  randomImages.sort(function() { return 0.5 -Math.random() });
+var shuffledImages=[];
+var shuffledImagesMap={};
+var sortedImages=[];
+var swapStack = [];
 
-  $(document.body).append('<div id="board"></div>');
+for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
+  image = 'url(../tiles/tile_'+i+'.jpg)'
+  sortedImages.push(image);
+  shuffledImages.push(image);
+}
 
+shuffleImages();
+$('.box').click(handleClick);
+
+//shuffle the images
+function shuffleImages() {
+  shuffledImages.sort(function() { return 0.5 -Math.random() });
+  
   var boxCounter = 0;
   for (var i = 0; i < verticalBoxNum; i++) {
-
+  
     $('#board').append('<div id="row'+ i +'"></div>');
-
+  
     for(var j = 0; j < horizontalBoxNum; j++) {
       $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
-      $('#box'+boxCounter).css('background-image', randomImages[boxCounter]);
+      $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
+      shuffledImagesMap['#box'+boxCounter] = shuffledImages[boxCounter];
       boxCounter++;
     }
   }
+}
 
-  $('.box').click(handleClick);
+function handleClick() {
+  swapStack.push('#'+$(this).attr('id'));
+  console.log(swapStack);
+  if (swapStack.length == 2) {
+    bgImage0 = $(swapStack[0]).css('background-image');
+    bgImage1 = $(swapStack[1]).css('background-image');
+    if (bgImage0 != bgImage1) {
+      $(swapStack[0]).css('background-image', bgImage1);
+      $(swapStack[1]).css('background-image', bgImage0);
 
-  var swapStack = [];
+      temp = shuffledImagesMap[swapStack[0]];
+      shuffledImagesMap[swapStack[0]] = shuffledImagesMap[swapStack[1]];
+      shuffledImagesMap[swapStack[1]] = temp;
 
-  function handleClick() {
-    console.log($(this).attr('id'));
-    swapStack.push('#'+$(this).attr('id'));
-    console.log(swapStack);
-    if (swapStack.length == 2) {
-      bgImage0 = $(swapStack[0]).css('background-image');
-      bgImage1 = $(swapStack[1]).css('background-image');
-      if (bgImage0 != bgImage1) {
-        console.log(bgImage0);
-        console.log(bgImage1);
-        $(swapStack[0]).css('background-image', bgImage1);
-        $(swapStack[1]).css('background-image', bgImage0);
-        console.log($(swapStack[0]).css('background-image'));
-        console.log($(swapStack[1]).css('background-image'));
-      }
-      swapStack=[];
+      checkWin();
     }
+    swapStack=[];
   }
+}
 
-  window.addEventListener("resize", handleResize);
+function checkWin() {
+  gameImages = [];
+  for (key in shuffledImagesMap) {
+    gameImages.push(shuffledImagesMap[key]);
+  }
+  if (gameImages.toString()==sortedImages.toString()) {
+    console.log("WIN!");
+  }
+}
+
+function handleResize() {
+  $('.box').css('width', $('#board').width() / horizontalBoxNum);
+  $('.box').css('height', $('#board').height() / verticalBoxNum);
+}
