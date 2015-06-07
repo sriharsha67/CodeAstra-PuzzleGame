@@ -1,6 +1,8 @@
 
 $(document).ready(handleResize);
 $(document.body).append('<div id="board"></div>');
+$('#board').append('<div id="win"></div>');
+$('#win').append('<div id="win_text">YOU WIN!</div>');
 
 window.addEventListener("resize", handleResize);
 
@@ -40,6 +42,7 @@ function shuffleImages() {
 }
 
 function handleClick() {
+  $('#win').css('visibility', 'hidden');
   swapStack.push('#'+$(this).attr('id'));
   console.log(swapStack);
   if (swapStack.length == 2) {
@@ -66,6 +69,7 @@ function checkWin() {
   }
   if (gameImages.toString()==sortedImages.toString()) {
     console.log("WIN!");
+    $('#win').css('visibility', 'visible');
   }
 }
 
