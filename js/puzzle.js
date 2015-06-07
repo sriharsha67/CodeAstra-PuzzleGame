@@ -1,10 +1,8 @@
 
 $(document).ready(handleResize);
+$(document.body).append('<div id="board"></div>');
 
-function handleResize() {
-  $('.box').css('width', $('#board').width() / horizontalBoxNum);
-  $('.box').css('height', $('#board').height() / verticalBoxNum);
-}
+window.addEventListener("resize", handleResize);
 
 verticalBoxNum = 4;
 horizontalBoxNum = 6;
@@ -12,6 +10,7 @@ horizontalBoxNum = 6;
 var shuffledImages=[];
 var shuffledImagesMap={};
 var sortedImages=[];
+var swapStack = [];
 
 for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
   image = 'url(../tiles/tile_'+i+'.jpg)'
@@ -19,27 +18,26 @@ for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
   shuffledImages.push(image);
 }
 
-shuffledImages.sort(function() { return 0.5 -Math.random() });
-
-$(document.body).append('<div id="board"></div>');
-
-var boxCounter = 0;
-for (var i = 0; i < verticalBoxNum; i++) {
-
-  $('#board').append('<div id="row'+ i +'"></div>');
-
-  for(var j = 0; j < horizontalBoxNum; j++) {
-    $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
-    $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
-    //shuffledImagesMap['#box'+boxCounter] = $('#box'+boxCounter).css('background-image');
-    shuffledImagesMap['#box'+boxCounter] = shuffledImages[boxCounter];
-    boxCounter++;
-  }
-}
-console.log(shuffledImagesMap);
+shuffleImages();
 $('.box').click(handleClick);
 
-var swapStack = [];
+//shuffle the images
+function shuffleImages() {
+  shuffledImages.sort(function() { return 0.5 -Math.random() });
+  
+  var boxCounter = 0;
+  for (var i = 0; i < verticalBoxNum; i++) {
+  
+    $('#board').append('<div id="row'+ i +'"></div>');
+  
+    for(var j = 0; j < horizontalBoxNum; j++) {
+      $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
+      $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
+      shuffledImagesMap['#box'+boxCounter] = shuffledImages[boxCounter];
+      boxCounter++;
+    }
+  }
+}
 
 function handleClick() {
   swapStack.push('#'+$(this).attr('id'));
@@ -66,13 +64,14 @@ function checkWin() {
   for (key in shuffledImagesMap) {
     gameImages.push(shuffledImagesMap[key]);
   }
-    console.log(gameImages.toString());
-    console.log(sortedImages.toString());
   if (gameImages.toString()==sortedImages.toString()) {
-    console.log(":::::::::::::::::::::::::::::::::::::::::::");
+    console.log("WIN!");
   }
 }
 
+function handleResize() {
+  $('.box').css('width', $('#board').width() / horizontalBoxNum);
+  $('.box').css('height', $('#board').height() / verticalBoxNum);
+}
 
-window.addEventListener("resize", handleResize);
 
