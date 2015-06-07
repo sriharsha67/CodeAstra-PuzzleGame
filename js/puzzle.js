@@ -1,4 +1,13 @@
 
+$(document).ready(handleResize);
+
+
+function handleResize() {
+  console.log($('#board').width());
+  $('.box').css('width', $('#board').width() / horizontalBoxNum);
+  $('.box').css('height', $('#board').height() / verticalBoxNum);
+}
+
 verticalBoxNum = 4;
 horizontalBoxNum = 6;
 
@@ -18,6 +27,4 @@ for(var i = 0; i < verticalBoxNum; i++) {
   }
 }
 
-$('.box').css('width', $('#board').width() / 6)
-$('.box').css('height', $('#board').height() / 4)
-
+window.addEventListener("resize", handleResize);
