@@ -20,5 +20,6 @@ body {
   border-width: 1px;
   border-color: black;
   float: left;
+  background-size: 100% 100%;
 }
 
