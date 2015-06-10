@@ -1,57 +1,84 @@
 
 $(document).ready(init);
-
-function init() {
-  handleResize();
-  $('#shuffle').click(function(event) {
-      shuffleImages(); 
-    }
-  )
-}
-
-$(document.body).append('<div id="board"></div>');
-$('#board').append('<div id="win"></div>');
-$('#board').append('<div id="mouseover"></div>');
-$('#mouseover').append('<a href="#" id="shuffle">Shuffle</a><a href="#" id="undo">Undo</a>');
-$('#win').append('<div id="win_text">YOU WIN!</div>');
-
 window.addEventListener("resize", handleResize);
-
-verticalBoxNum = 4;
-horizontalBoxNum = 6;
 
 var shuffledImages=[];
 var shuffledImagesMap={};
 var sortedImages=[];
 var swapStack = [];
 
-for (var i = 0; i < verticalBoxNum*horizontalBoxNum; i++) {
-  image = 'url(tiles/tile_'+i+'.jpg)'
-  sortedImages.push(image);
-  shuffledImages.push(image);
+var setup = function() {
+
+  //defaults
+  var rows = 4, columns = 6;
+
+  return {
+    "columns": function() { return columns },
+    "rows": function() { return rows },
+    "setNumColumns": function(numColumns) { columns = numColumns; },
+    "setNumRows": function(numRows) { rows = numRows; }
+  }
+}();
+
+
+function getImages() {
+  for (var i = 0; i < setup.rows()*setup.columns(); i++) {
+    image = 'url(tiles/tile_'+i+'.jpg)'
+    sortedImages.push(image);
+    shuffledImages.push(image);
+  }
 }
 
-shuffleImages();
-$('.box').click(handleClick);
 
-//shuffle the images
-function shuffleImages() {
-  shuffledImages.sort(function() { return 0.5 -Math.random() });
-  
+function generateHTML() {
+  $(document.body).append('<div id="board"></div>');
+  $('#board').append('<div id="win"></div>');
+  $('#board').append('<div id="mouseover"></div>');
+  $('#mouseover').append('<a href="#" id="shuffle">Shuffle</a><a href="#" id="undo">Undo</a>');
+  $('#win').append('<div id="win_text">YOU WIN!</div>');
+  getImages();
+  generateGrid();
+  shuffleImages();
+}
+
+
+function generateGrid() {
   var boxCounter = 0;
-  for (var i = 0; i < verticalBoxNum; i++) {
+  for (var i = 0; i < setup.rows(); i++) {
   
     $('#board').append('<div id="row'+ i +'"></div>');
   
-    for(var j = 0; j < horizontalBoxNum; j++) {
+    for(var j = 0; j < setup.columns(); j++) {
       $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
       $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
       shuffledImagesMap['#box'+boxCounter] = shuffledImages[boxCounter];
       boxCounter++;
     }
   }
+}
+
+
+//shuffle the images
+function shuffleImages() {
+  shuffledImages.sort(function() { return 0.5 -Math.random() });
+  for (boxCounter = 0; boxCounter < shuffledImages.length; boxCounter++) {
+    $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
+  }
   handleResize();
 }
+
+
+function init() {
+  generateHTML();
+  handleResize();
+  $('#shuffle').click(function(event) {
+      shuffleImages(); 
+    }
+  )
+$('.box').click(handleClick);
+}
+
+
 
 function handleClick() {
   $('#win').css('visibility', 'hidden');
@@ -86,7 +113,7 @@ function checkWin() {
 }
 
 function handleResize() {
-  $('.box').css('width', $('#board').width() / horizontalBoxNum);
-  $('.box').css('height', $('#board').height() / verticalBoxNum);
+  $('.box').css('width', $('#board').width() / setup.columns());
+  $('.box').css('height', $('#board').height() / setup.rows());
 }
 
