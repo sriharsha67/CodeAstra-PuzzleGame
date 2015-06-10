@@ -2,8 +2,8 @@
 $(document).ready(init);
 window.addEventListener("resize", handleResize);
 
-//namespace for game parameters abd values
-var gameParams = function() {
+//Provide a ParamsI interface
+(function(gameParams) {
 
   //defaults
   var rows = 4, columns = 6;
@@ -12,31 +12,28 @@ var gameParams = function() {
   var sortedImages=[];
   var swapStack = [];
 
-  return {
+  gameParams.columns = function() { return columns },
+  gameParams.setColumns= function(numColumns) { columns = numColumns; },
 
-    "columns": function() { return columns },
-    "setColumns": function(numColumns) { columns = numColumns; },
+  gameParams.rows = function() { return rows },
+  gameParams.setRows = function(numRows) { rows = numRows; },
 
-    "rows": function() { return rows },
-    "setRows": function(numRows) { rows = numRows; },
+  gameParams.shuffledImages = shuffledImages,
 
-    "shuffledImages" : shuffledImages,
+  gameParams.shuffledImagesMap = shuffledImagesMap,
 
-    "shuffledImagesMap" : shuffledImagesMap,
+  gameParams.sortedImages = sortedImages,
 
-    "sortedImages" : sortedImages,
+  gameParams.swapStack = swapStack
 
-    "swapStack" : swapStack
-  }
-
-}();
-
+})(this.ParamsI={});
+//ParamsI is a property of the global scope object. It serves as the interface to this js module.
 
 function getImages() {
-  for (var i = 0; i < gameParams.rows()*gameParams.columns(); i++) {
+  for (var i = 0; i < ParamsI.rows()*ParamsI.columns(); i++) {
     image = 'url(tiles/tile_'+i+'.jpg)'
-    gameParams.sortedImages.push(image);
-    gameParams.shuffledImages.push(image);
+    ParamsI.sortedImages.push(image);
+    ParamsI.shuffledImages.push(image);
   }
 }
 
@@ -55,14 +52,14 @@ function generateHTML() {
 
 function generateGrid() {
   var boxCounter = 0;
-  for (var i = 0; i < gameParams.rows(); i++) {
+  for (var i = 0; i < ParamsI.rows(); i++) {
   
     $('#board').append('<div id="row'+ i +'"></div>');
   
-    for(var j = 0; j < gameParams.columns(); j++) {
+    for(var j = 0; j < ParamsI.columns(); j++) {
       $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
-      $('#box'+boxCounter).css('background-image', gameParams.shuffledImages[boxCounter]);
-      gameParams.shuffledImagesMap['#box'+boxCounter] = gameParams.shuffledImages[boxCounter];
+      $('#box'+boxCounter).css('background-image', ParamsI.shuffledImages[boxCounter]);
+      ParamsI.shuffledImagesMap['#box'+boxCounter] = ParamsI.shuffledImages[boxCounter];
       boxCounter++;
     }
   }
@@ -71,9 +68,9 @@ function generateGrid() {
 
 //shuffle the images
 function shuffleImages() {
-  gameParams.shuffledImages.sort(function() { return 0.5 -Math.random() });
-  for (boxCounter = 0; boxCounter < gameParams.shuffledImages.length; boxCounter++) {
-    $('#box'+boxCounter).css('background-image', gameParams.shuffledImages[boxCounter]);
+  ParamsI.shuffledImages.sort(function() { return 0.5 -Math.random() });
+  for (boxCounter = 0; boxCounter < ParamsI.shuffledImages.length; boxCounter++) {
+    $('#box'+boxCounter).css('background-image', ParamsI.shuffledImages[boxCounter]);
   }
   handleResize();
 }
@@ -95,32 +92,32 @@ $('.box').click(handleClick);
 
 function handleClick() {
   $('#win').css('visibility', 'hidden');
-  gameParams.swapStack.push('#'+$(this).attr('id'));
-  console.log(gameParams.swapStack);
-  if (gameParams.swapStack.length == 2) {
-    bgImage0 = $(gameParams.swapStack[0]).css('background-image');
-    bgImage1 = $(gameParams.swapStack[1]).css('background-image');
+  ParamsI.swapStack.push('#'+$(this).attr('id'));
+  console.log(ParamsI.swapStack);
+  if (ParamsI.swapStack.length == 2) {
+    bgImage0 = $(ParamsI.swapStack[0]).css('background-image');
+    bgImage1 = $(ParamsI.swapStack[1]).css('background-image');
     if (bgImage0 != bgImage1) {
-      $(gameParams.swapStack[0]).css('background-image', bgImage1);
-      $(gameParams.swapStack[1]).css('background-image', bgImage0);
+      $(ParamsI.swapStack[0]).css('background-image', bgImage1);
+      $(ParamsI.swapStack[1]).css('background-image', bgImage0);
 
-      temp = gameParams.shuffledImagesMap[gameParams.swapStack[0]];
-      gameParams.shuffledImagesMap[gameParams.swapStack[0]] = gameParams.shuffledImagesMap[gameParams.swapStack[1]];
-      gameParams.shuffledImagesMap[gameParams.swapStack[1]] = temp;
+      temp = ParamsI.shuffledImagesMap[ParamsI.swapStack[0]];
+      ParamsI.shuffledImagesMap[ParamsI.swapStack[0]] = ParamsI.shuffledImagesMap[ParamsI.swapStack[1]];
+      ParamsI.shuffledImagesMap[ParamsI.swapStack[1]] = temp;
 
       checkWin();
     }
-    gameParams.swapStack=[];
+    ParamsI.swapStack=[];
   }
 }
 
 
 function checkWin() {
   gameImages = [];
-  for (key in gameParams.shuffledImagesMap) {
-    gameImages.push(gameParams.shuffledImagesMap[key]);
+  for (key in ParamsI.shuffledImagesMap) {
+    gameImages.push(ParamsI.shuffledImagesMap[key]);
   }
-  if (gameImages.toString()==gameParams.sortedImages.toString()) {
+  if (gameImages.toString()==ParamsI.sortedImages.toString()) {
     console.log("WIN!");
     $('#win').css('visibility', 'visible');
   }
@@ -128,7 +125,6 @@ function checkWin() {
 
 
 function handleResize() {
-  $('.box').css('width', $('#board').width() / gameParams.columns());
-  $('.box').css('height', $('#board').height() / gameParams.rows());
+  $('.box').css('width', $('#board').width() / ParamsI.columns());
+  $('.box').css('height', $('#board').height() / ParamsI.rows());
 }
-
