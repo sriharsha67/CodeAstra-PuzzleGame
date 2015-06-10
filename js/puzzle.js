@@ -2,30 +2,41 @@
 $(document).ready(init);
 window.addEventListener("resize", handleResize);
 
-var shuffledImages=[];
-var shuffledImagesMap={};
-var sortedImages=[];
-var swapStack = [];
-
-var setup = function() {
+//namespace for game parameters abd values
+var gameParams = function() {
 
   //defaults
   var rows = 4, columns = 6;
+  var shuffledImages=[];
+  var shuffledImagesMap={};
+  var sortedImages=[];
+  var swapStack = [];
 
   return {
+
     "columns": function() { return columns },
+    "setColumns": function(numColumns) { columns = numColumns; },
+
     "rows": function() { return rows },
-    "setNumColumns": function(numColumns) { columns = numColumns; },
-    "setNumRows": function(numRows) { rows = numRows; }
+    "setRows": function(numRows) { rows = numRows; },
+
+    "shuffledImages" : shuffledImages,
+
+    "shuffledImagesMap" : shuffledImagesMap,
+
+    "sortedImages" : sortedImages,
+
+    "swapStack" : swapStack
   }
+
 }();
 
 
 function getImages() {
-  for (var i = 0; i < setup.rows()*setup.columns(); i++) {
+  for (var i = 0; i < gameParams.rows()*gameParams.columns(); i++) {
     image = 'url(tiles/tile_'+i+'.jpg)'
-    sortedImages.push(image);
-    shuffledImages.push(image);
+    gameParams.sortedImages.push(image);
+    gameParams.shuffledImages.push(image);
   }
 }
 
@@ -44,14 +55,14 @@ function generateHTML() {
 
 function generateGrid() {
   var boxCounter = 0;
-  for (var i = 0; i < setup.rows(); i++) {
+  for (var i = 0; i < gameParams.rows(); i++) {
   
     $('#board').append('<div id="row'+ i +'"></div>');
   
-    for(var j = 0; j < setup.columns(); j++) {
+    for(var j = 0; j < gameParams.columns(); j++) {
       $('#board').append('<div id="box'+ boxCounter +'" class="box"></div>');
-      $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
-      shuffledImagesMap['#box'+boxCounter] = shuffledImages[boxCounter];
+      $('#box'+boxCounter).css('background-image', gameParams.shuffledImages[boxCounter]);
+      gameParams.shuffledImagesMap['#box'+boxCounter] = gameParams.shuffledImages[boxCounter];
       boxCounter++;
     }
   }
@@ -60,17 +71,20 @@ function generateGrid() {
 
 //shuffle the images
 function shuffleImages() {
-  shuffledImages.sort(function() { return 0.5 -Math.random() });
-  for (boxCounter = 0; boxCounter < shuffledImages.length; boxCounter++) {
-    $('#box'+boxCounter).css('background-image', shuffledImages[boxCounter]);
+  gameParams.shuffledImages.sort(function() { return 0.5 -Math.random() });
+  for (boxCounter = 0; boxCounter < gameParams.shuffledImages.length; boxCounter++) {
+    $('#box'+boxCounter).css('background-image', gameParams.shuffledImages[boxCounter]);
   }
   handleResize();
 }
 
 
 function init() {
+  console.log("dbg 1");
   generateHTML();
+  console.log("dbg 2");
   handleResize();
+  console.log("dbg 3");
   $('#shuffle').click(function(event) {
       shuffleImages(); 
     }
@@ -79,41 +93,42 @@ $('.box').click(handleClick);
 }
 
 
-
 function handleClick() {
   $('#win').css('visibility', 'hidden');
-  swapStack.push('#'+$(this).attr('id'));
-  console.log(swapStack);
-  if (swapStack.length == 2) {
-    bgImage0 = $(swapStack[0]).css('background-image');
-    bgImage1 = $(swapStack[1]).css('background-image');
+  gameParams.swapStack.push('#'+$(this).attr('id'));
+  console.log(gameParams.swapStack);
+  if (gameParams.swapStack.length == 2) {
+    bgImage0 = $(gameParams.swapStack[0]).css('background-image');
+    bgImage1 = $(gameParams.swapStack[1]).css('background-image');
     if (bgImage0 != bgImage1) {
-      $(swapStack[0]).css('background-image', bgImage1);
-      $(swapStack[1]).css('background-image', bgImage0);
+      $(gameParams.swapStack[0]).css('background-image', bgImage1);
+      $(gameParams.swapStack[1]).css('background-image', bgImage0);
 
-      temp = shuffledImagesMap[swapStack[0]];
-      shuffledImagesMap[swapStack[0]] = shuffledImagesMap[swapStack[1]];
-      shuffledImagesMap[swapStack[1]] = temp;
+      temp = gameParams.shuffledImagesMap[gameParams.swapStack[0]];
+      gameParams.shuffledImagesMap[gameParams.swapStack[0]] = gameParams.shuffledImagesMap[gameParams.swapStack[1]];
+      gameParams.shuffledImagesMap[gameParams.swapStack[1]] = temp;
 
       checkWin();
     }
-    swapStack=[];
+    gameParams.swapStack=[];
   }
 }
 
+
 function checkWin() {
   gameImages = [];
-  for (key in shuffledImagesMap) {
-    gameImages.push(shuffledImagesMap[key]);
+  for (key in gameParams.shuffledImagesMap) {
+    gameImages.push(gameParams.shuffledImagesMap[key]);
   }
-  if (gameImages.toString()==sortedImages.toString()) {
+  if (gameImages.toString()==gameParams.sortedImages.toString()) {
     console.log("WIN!");
     $('#win').css('visibility', 'visible');
   }
 }
 
+
 function handleResize() {
-  $('.box').css('width', $('#board').width() / setup.columns());
-  $('.box').css('height', $('#board').height() / setup.rows());
+  $('.box').css('width', $('#board').width() / gameParams.columns());
+  $('.box').css('height', $('#board').height() / gameParams.rows());
 }
 
