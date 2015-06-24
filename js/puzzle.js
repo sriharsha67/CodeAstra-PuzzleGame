@@ -77,11 +77,8 @@ function shuffleImages() {
 
 
 function init() {
-  console.log("dbg 1");
-  generateHTML();
-  console.log("dbg 2");
   handleResize();
-  console.log("dbg 3");
+  generateHTML();
   $('#shuffle').click(function(event) {
       shuffleImages(); 
     }
